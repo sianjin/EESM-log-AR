@@ -74,6 +74,7 @@ Abstraction = tgaxEESMLinkPerformanceModel;
 
 % Loop to simulate multiple packets
 perStore = nan(maxNumPackets,1);
+sinrStore = nan(ofdmInfo.NumTones,cfgHE.NumSpaceTimeStreams,maxNumPackets); % Nsc-by-Nsts-by-maxNumPackets
 % Storing effective SNR vector for estimating effective SNR distribution
 effSnrVec = [];
 % Storing instantaneous PER vector for validation
@@ -135,6 +136,7 @@ while numPacketErrors<=maxNumErrors && numPkt<=maxNumPackets
     Htxrx = permute(mean(chan,2),[1 3 4 2]); % Nst-by-Nt-by-Nr
     Ptxrx = 1; % Assume transmit power is 0dBW
     sinr = calculateSINR(Htxrx,Ptxrx,Wtx,N0);
+    sinrStore(:,:,numPkt) = sinr;
     
     % Link performance model - estimate PER using abstraction
     snrEff = eesmEffectiveSINR(Abstraction,sinr,beta);
@@ -193,6 +195,7 @@ out = struct;
 out.packetErrorRateAbs = packetErrorRateAbs;
 out.packetErrorRate = packetErrorRate;
 out.perStore = perStore;
+out.sinrStore = sinrStore;
 out.numPkt = numPkt;
 out.effSnrVec = effSnrVec;
 out.perInsAbsVec = perInsAbsVec;
